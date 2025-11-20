@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Búsqueda Nombre + Apellidos</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    h3 {
+      font-size: 1rem;
+      margin: 10px 0;
+    }
+    .busqueda-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    #lista div {
+      cursor: pointer;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      background: white;
+    }
+    #lista div:hover {
+      background-color: #f0f0f0;
+    }
+    /* Resultado en tarjetas para móvil */
+    #resultado {
+      margin-top: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      table thead {
+    display: none;
+  }
+      tr {
+        margin-bottom: 12px;
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      }
+      td {
+        border: none;
+        padding: 6px 0;
+      }
+      td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>7ª Gran Canaria SwimRun 2025</h1>  
+
+<h3>Buscar participante (nombre y apellidos):</h3>
+
+<div class="busqueda-container">
+  <input type="text" id="busqueda" placeholder="Escribe nombre y/o apellidos" />
+  <button id="limpiarBtn">Limpiar</button>
+</div>
+
+<div id="lista" style="max-height: 200px; overflow-y: auto;"></div>
+<hr />
+<div id="resultado"></div>
+
+<script>
+  // Datos embebidos directamente
+  let datos = [
+    {
+  "NOMBRE": "Manuel Alberto",
+  "APELLIDOS": "Martín Jerez",
+  "DOCUMENTO": "45760116Y",
+  "DORSAL": 151,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Leopoldo",
+  "APELLIDOS": "Ramirez O'Shanahan",
+  "DOCUMENTO": "44742084T",
+  "DORSAL": 152,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo",
+  "CATEGORIA": "   ",
+  "NOMBRE DEL EQUIPO": " "
+ },
+ {
+  "NOMBRE": "Gabriel",
+  "APELLIDOS": "Martín González",
+  "DOCUMENTO": "44724497P",
+  "DORSAL": 153,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Jorge Andrés",
+  "APELLIDOS": "Rodríguez Brito",
+  "DOCUMENTO": "44323955B",
+  "DORSAL": 154,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Francisco José",
+  "APELLIDOS": "Caballero González",
+  "DOCUMENTO": "45345960B",
+  "DORSAL": 155,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Giovana",
+  "APELLIDOS": "Moreira Ensinas",
+  "DOCUMENTO": "Y5113208T",
+  "DORSAL": 156,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Jana",
+  "APELLIDOS": "Richter",
+  "DOCUMENTO": "LCMK1M382",
+  "DORSAL": 157,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Angel Luis",
+  "APELLIDOS": "Navas Ojeda",
+  "DOCUMENTO": "45342055Q",
+  "DORSAL": 158,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "JULIÁN",
+  "APELLIDOS": "SANTANA SILVA",
+  "DOCUMENTO": "54065138G",
+  "DORSAL": 159,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Juan Miguel",
+  "APELLIDOS": "Mosquera Fernandez",
+  "DOCUMENTO": "78501037J",
+  "DORSAL": 161,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Carlos",
+  "APELLIDOS": "Alduán",
+  "DOCUMENTO": "44737706S",
+  "DORSAL": 162,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Beatriz",
+  "APELLIDOS": "Burciaga medina",
+  "DOCUMENTO": "43296089S",
+  "DORSAL": 163,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "JUAN ANTONIO",
+  "APELLIDOS": "CABALLERO PEÑATE",
+  "DOCUMENTO": "54123887B",
+  "DORSAL": 164,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Agoney",
+  "APELLIDOS": "Acosta Lorenzo",
+  "DOCUMENTO": "44306105D",
+  "DORSAL": 165,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Luis Enrique",
+  "APELLIDOS": "Manrique Laureiro",
+  "DOCUMENTO": "45362232E",
+  "DORSAL": 166,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Pablo",
+  "APELLIDOS": "Moreno Peinado",
+  "DOCUMENTO": "45394960k",
+  "DORSAL": 167,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Javier",
+  "APELLIDOS": "Suárez Diaz",
+  "DOCUMENTO": "78476673Y",
+  "DORSAL": 168,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Ana",
+  "APELLIDOS": "Robayna Fernandez",
+  "DOCUMENTO": "78498712b",
+  "DORSAL": 169,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Jose",
+  "APELLIDOS": "González Mendoza",
+  "DOCUMENTO": "45778028R",
+  "DORSAL": 170,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "ÁNGEL JOSÉ",
+  "APELLIDOS": "CABALLERO PEÑATE",
+  "DOCUMENTO": "54385037L",
+  "DORSAL": 171,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Samuel Esau",
+  "APELLIDOS": "Rodríguez Prada",
+  "DOCUMENTO": "45176676F",
+  "DORSAL": 172,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Noa",
+  "APELLIDOS": "Mateos López",
+  "DOCUMENTO": "43290961Q",
+  "DORSAL": 173,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Nerea",
+  "APELLIDOS": "Martín Martel",
+  "DOCUMENTO": "45330314M",
+  "DORSAL": 174,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "PEDRO AGUSTIN",
+  "APELLIDOS": "BATISTA SANCHEZ",
+  "DOCUMENTO": "42853324T",
+  "DORSAL": 175,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Aniagua del Carmen",
+  "APELLIDOS": "Cáceres Acosta",
+  "DOCUMENTO": "45390706E",
+  "DORSAL": 177,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Alberto",
+  "APELLIDOS": "suarez rodriguez",
+  "DOCUMENTO": "44700644Y",
+  "DORSAL": 178,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Guillermo",
+  "APELLIDOS": "Ramirez O'Shanahan",
+  "DOCUMENTO": "44742085R",
+  "DORSAL": 179,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "ALFREDO",
+  "APELLIDOS": "VILA SIEIRA",
+  "DOCUMENTO": "75809446C",
+  "DORSAL": 180,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Javier",
+  "APELLIDOS": "Fernández Villares",
+  "DOCUMENTO": "48974148H",
+  "DORSAL": 181,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Andreas",
+  "APELLIDOS": "MENEGHIN",
+  "DOCUMENTO": "GM728040",
+  "DORSAL": 182,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Alberto",
+  "APELLIDOS": "Montoya Juste",
+  "DOCUMENTO": "14304653X",
+  "DORSAL": 183,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Alvaro",
+  "APELLIDOS": "Iglesias Prada",
+  "DOCUMENTO": "45332433P",
+  "DORSAL": 184,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "José Manuel",
+  "APELLIDOS": "Domínguez Sanz",
+  "DOCUMENTO": "09297535s",
+  "DORSAL": 185,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Juan Antonio",
+  "APELLIDOS": "Hernández Coello",
+  "DOCUMENTO": "78691725P",
+  "DORSAL": 186,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "JAVIER LUIS",
+  "APELLIDOS": "GIL LEÓN",
+  "DOCUMENTO": "43667548R",
+  "DORSAL": 187,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Sabrina",
+  "APELLIDOS": "Barabino Sideri",
+  "DOCUMENTO": "X4813997M",
+  "DORSAL": 188,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Agoney Cristo",
+  "APELLIDOS": "Moreno Ramírez",
+  "DOCUMENTO": "78517209Q",
+  "DORSAL": 189,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Enrique",
+  "APELLIDOS": "Mentado Medina",
+  "DOCUMENTO": "43274930q",
+  "DORSAL": 190,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Lorena",
+  "APELLIDOS": "Rodríguez Cruz",
+  "DOCUMENTO": "44720649R",
+  "DORSAL": 191,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "José Manuel",
+  "APELLIDOS": "Díaz González",
+  "DOCUMENTO": "44310173y",
+  "DORSAL": 192,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Yonathan",
+  "APELLIDOS": "Montesdeoca de la cruz",
+  "DOCUMENTO": "78516266q",
+  "DORSAL": 193,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "José Alberto",
+  "APELLIDOS": "González Tejera",
+  "DOCUMENTO": "43785677W",
+  "DORSAL": 194,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Carolina",
+  "APELLIDOS": "Campo Esteve",
+  "DOCUMENTO": "78625488B",
+  "DORSAL": 195,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "vianco",
+  "APELLIDOS": "perez cabrera",
+  "DOCUMENTO": "49860380z",
+  "DORSAL": 196,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Gorka",
+  "APELLIDOS": "Martín pieltain",
+  "DOCUMENTO": "78490047v",
+  "DORSAL": 197,
+  "TALLA DE CAMISETA": "Femenino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Diego",
+  "APELLIDOS": "Andrea Lope",
+  "DOCUMENTO": "52882058K",
+  "DORSAL": 198,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Raúl",
+  "APELLIDOS": "Torres vega",
+  "DOCUMENTO": "78503916v",
+  "DORSAL": 199,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Irene",
+  "APELLIDOS": "Suárez Hernández",
+  "DOCUMENTO": "44743142T",
+  "DORSAL": 200,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Jordi",
+  "APELLIDOS": "Menendez Calvo",
+  "DOCUMENTO": "45391313p",
+  "DORSAL": 201,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "David",
+  "APELLIDOS": "Falcón Villar",
+  "DOCUMENTO": "44742327J",
+  "DORSAL": 202,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Daniel",
+  "APELLIDOS": "Santiago Martín",
+  "DOCUMENTO": "78516455K",
+  "DORSAL": 203,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "LAURA",
+  "APELLIDOS": "MACIAS LAZ",
+  "DOCUMENTO": "75818334F",
+  "DORSAL": 204,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Javier",
+  "APELLIDOS": "Serrano Ramos",
+  "DOCUMENTO": "45342280B",
+  "DORSAL": 205,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "vanesa",
+  "APELLIDOS": "Gonzalez Sanfiel",
+  "DOCUMENTO": "78617250f",
+  "DORSAL": 206,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Eduardo",
+  "APELLIDOS": "Hernández Ramos",
+  "DOCUMENTO": "44732043x",
+  "DORSAL": 207,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Enrique",
+  "APELLIDOS": "Cabrera Entero",
+  "DOCUMENTO": "05468264Z",
+  "DORSAL": 208,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Antonio",
+  "APELLIDOS": "Estalella illan",
+  "DOCUMENTO": "45363272G",
+  "DORSAL": 209,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Sergio",
+  "APELLIDOS": "Muñoz Ayllón",
+  "DOCUMENTO": "41747239P",
+  "DORSAL": 210,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "José  Luis",
+  "APELLIDOS": "García Espinosa",
+  "DOCUMENTO": "42062962X",
+  "DORSAL": 212,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "José Juan",
+  "APELLIDOS": "Barrera Rodríguez",
+  "DOCUMENTO": "42874362Q",
+  "DORSAL": 213,
+  "TALLA DE CAMISETA": "Masculino XXL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Juan María",
+  "APELLIDOS": "Hernández Guerra",
+  "DOCUMENTO": "42845394M",
+  "DORSAL": 215,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Guayasen",
+  "APELLIDOS": "González Molina",
+  "DOCUMENTO": "78572922T",
+  "DORSAL": 216,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Juan Francisco",
+  "APELLIDOS": "Ascanio Perez",
+  "DOCUMENTO": "52836286l",
+  "DORSAL": 217,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Alejandro",
+  "APELLIDOS": "Morales Socorro",
+  "DOCUMENTO": "78524820Z",
+  "DORSAL": 218,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Mario Isaac",
+  "APELLIDOS": "Diaz Badra",
+  "DOCUMENTO": "78514027P",
+  "DORSAL": 219,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Alicia",
+  "APELLIDOS": "Rodriguez Rivero",
+  "DOCUMENTO": "78679416G",
+  "DORSAL": 220,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Viktors",
+  "APELLIDOS": "Vovrusko",
+  "DOCUMENTO": "X9933762Q",
+  "DORSAL": 221,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "ROBERTO",
+  "APELLIDOS": "HERRERA GALVAN",
+  "DOCUMENTO": "79151139C",
+  "DORSAL": 222,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "PEDRO MANUEL",
+  "APELLIDOS": "TORRES SÁNCHEZ",
+  "DOCUMENTO": "42862674N",
+  "DORSAL": 223,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "A.Esther",
+  "APELLIDOS": "Gordillo Concepción",
+  "DOCUMENTO": "43813972F",
+  "DORSAL": 224,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "ALBERTO",
+  "APELLIDOS": "LORENZO MARTIN",
+  "DOCUMENTO": "03882477P",
+  "DORSAL": 225,
+  "TALLA DE CAMISETA": "Masculino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "ELIZABETH",
+  "APELLIDOS": "MONAGAS GONZALEZ",
+  "DOCUMENTO": "55438874L",
+  "DORSAL": 226,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Cristobal",
+  "APELLIDOS": "Sánchez Fuented",
+  "DOCUMENTO": "05278262S",
+  "DORSAL": 227,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Belen",
+  "APELLIDOS": "Diaz Garcia",
+  "DOCUMENTO": "43827787e",
+  "DORSAL": 228,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "maria isabel",
+  "APELLIDOS": "allgaier negrin",
+  "DOCUMENTO": "43373586w",
+  "DORSAL": 229,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Ayram",
+  "APELLIDOS": "Izquierdo Gallardo",
+  "DOCUMENTO": "78701628K",
+  "DORSAL": 230,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "SONIA MAGDALENA",
+  "APELLIDOS": "GONZALEZ PEREZ",
+  "DOCUMENTO": "78701494W",
+  "DORSAL": 231,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Manuel Jose",
+  "APELLIDOS": "Herguedas Hurtado",
+  "DOCUMENTO": "50848280H",
+  "DORSAL": 232,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Sandra",
+  "APELLIDOS": "Benavente Velasco",
+  "DOCUMENTO": "43801192S",
+  "DORSAL": 233,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Luis Alberto",
+  "APELLIDOS": "Pérez Caicedo",
+  "DOCUMENTO": "44732198g",
+  "DORSAL": 234,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Domenica",
+  "APELLIDOS": "Cilluffo",
+  "DOCUMENTO": "Y4153262M",
+  "DORSAL": 235,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Roberto",
+  "APELLIDOS": "Colaprisca",
+  "DOCUMENTO": "X2474709r",
+  "DORSAL": 236,
+  "TALLA DE CAMISETA": "Masculino XXL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Kathleen",
+  "APELLIDOS": "De Croock",
+  "DOCUMENTO": "P592252340228",
+  "DORSAL": 237,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Adam",
+  "APELLIDOS": "Ogłoblin",
+  "DOCUMENTO": "CGD347623",
+  "DORSAL": 238,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Luis Roberto",
+  "APELLIDOS": "Rey González",
+  "DOCUMENTO": "32759159y",
+  "DORSAL": 239,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Juan Antonio",
+  "APELLIDOS": "Barrios Hernández",
+  "DOCUMENTO": "78567543A",
+  "DORSAL": 240,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "William Edwin",
+  "APELLIDOS": "Van Dijk Martín",
+  "DOCUMENTO": "54060436v",
+  "DORSAL": 241,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "AIRAM",
+  "APELLIDOS": "PERAZA QUINTERO",
+  "DOCUMENTO": "54049679R",
+  "DORSAL": 242,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Víctor",
+  "APELLIDOS": "Martín Cano",
+  "DOCUMENTO": "50200283T",
+  "DORSAL": 243,
+  "TALLA DE CAMISETA": "Masculino XXL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open Solo"
+ },
+ {
+  "NOMBRE": "Yasmina",
+  "APELLIDOS": "Rodríguez Díaz",
+  "DOCUMENTO": "78560484M",
+  "DORSAL": 251,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "ANTHUS"
+ },
+ {
+  "NOMBRE": "Gorka",
+  "APELLIDOS": "Antona Gómez",
+  "DOCUMENTO": "42185355C",
+  "DORSAL": 252,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "ANTHUS"
+ },
+ {
+  "NOMBRE": "Juan Ramón",
+  "APELLIDOS": "Gamero Tapia",
+  "DOCUMENTO": "80225984Y",
+  "DORSAL": 253,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "GameritoTwins"
+ },
+ {
+  "NOMBRE": "Laura",
+  "APELLIDOS": "Gamero Tapia",
+  "DOCUMENTO": "80088869V",
+  "DORSAL": 254,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "GameritoTwins"
+ },
+ {
+  "NOMBRE": "Pilar",
+  "APELLIDOS": "Gimeno Rodríguez",
+  "DOCUMENTO": "51166956Y",
+  "DORSAL": 255,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "GofioPower"
+ },
+ {
+  "NOMBRE": "Nivaria",
+  "APELLIDOS": "Benasco Méndez",
+  "DOCUMENTO": "54115428Q",
+  "DORSAL": 256,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "GofioPower"
+ },
+ {
+  "NOMBRE": "sergio",
+  "APELLIDOS": "cruz aduna",
+  "DOCUMENTO": "78524681j",
+  "DORSAL": 257,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "Gruñones"
+ },
+ {
+  "NOMBRE": "Eduardo",
+  "APELLIDOS": "Wood garcia",
+  "DOCUMENTO": "78524144M",
+  "DORSAL": 258,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "Gruñones"
+ },
+ {
+  "NOMBRE": "ELIZABETH",
+  "APELLIDOS": "MONAGAS GONZALEZ",
+  "DOCUMENTO": "55438874L",
+  "DORSAL": 259,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "Guanilas"
+ },
+ {
+  "NOMBRE": "SONIA MAGDALENA",
+  "APELLIDOS": "GONZALEZ PEREZ",
+  "DOCUMENTO": "78701494W",
+  "DORSAL": 260,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "Guanilas"
+ },
+ {
+  "NOMBRE": "OMAR",
+  "APELLIDOS": "SOSA AFONSO",
+  "DOCUMENTO": "45361550F",
+  "DORSAL": 261,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "PABLOMAR"
+ },
+ {
+  "NOMBRE": "PABLO",
+  "APELLIDOS": "CABEZUELO BOZADA",
+  "DOCUMENTO": "15411500M",
+  "DORSAL": 262,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "PABLOMAR"
+ },
+ {
+  "NOMBRE": "JOSE LUIS",
+  "APELLIDOS": "GARCIA ABREU",
+  "DOCUMENTO": "43763179K",
+  "DORSAL": 263,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "UROLOGIA360"
+ },
+ {
+  "NOMBRE": "PATRICIO",
+  "APELLIDOS": "NAVARRO MEDINA",
+  "DOCUMENTO": "44704355Z",
+  "DORSAL": 264,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "UROLOGIA360"
+ },
+ {
+  "NOMBRE": "Miguel",
+  "APELLIDOS": "Zamorano Galán",
+  "DOCUMENTO": "48535692B",
+  "DORSAL": 265,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "VelvetBanana"
+ },
+ {
+  "NOMBRE": "Julien",
+  "APELLIDOS": "Taillandier",
+  "DOCUMENTO": "X7982655E",
+  "DORSAL": 266,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "VelvetBanana"
+ },
+ {
+  "NOMBRE": "África Vidina",
+  "APELLIDOS": "Thadani Fernandez",
+  "DOCUMENTO": "78698450v",
+  "DORSAL": 267,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "Vidiguille"
+ },
+ {
+  "NOMBRE": "RAMON GUILLERMO",
+  "APELLIDOS": "GARCIA MANRIQUE",
+  "DOCUMENTO": "78700574w",
+  "DORSAL": 268,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "Vidiguille"
+ },
+ {
+  "NOMBRE": "Raquel E.",
+  "APELLIDOS": "Aguiar Brito",
+  "DOCUMENTO": "44313290h",
+  "DORSAL": 269,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "RaqMont"
+ },
+ {
+  "NOMBRE": "Montserrat",
+  "APELLIDOS": "González Palacio Montesdeoca",
+  "DOCUMENTO": "42863482S",
+  "DORSAL": 270,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Amarillo",
+  "TARIFA": "Open\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "RaqMont"
+ },
+ {
+  "NOMBRE": "guy",
+  "APELLIDOS": "rogers",
+  "DOCUMENTO": "y6569253f",
+  "DORSAL": 1,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Marianka",
+  "APELLIDOS": "Lukas",
+  "DOCUMENTO": "KOG45Y49",
+  "DORSAL": 2,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Marina",
+  "APELLIDOS": "Benedetti",
+  "DOCUMENTO": "YA9935066",
+  "DORSAL": 3,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Pablo",
+  "APELLIDOS": "Sancho alvarez",
+  "DOCUMENTO": "78497768x",
+  "DORSAL": 4,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "JAIME",
+  "APELLIDOS": "BELTRÁ GARCÍA",
+  "DOCUMENTO": "45332537C",
+  "DORSAL": 5,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Riccardo",
+  "APELLIDOS": "Ferraro",
+  "DOCUMENTO": "CA32717BA",
+  "DORSAL": 6,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Marko",
+  "APELLIDOS": "Tammist",
+  "DOCUMENTO": "AC1221280",
+  "DORSAL": 7,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Rodrigo",
+  "APELLIDOS": "Pueyo Takahashi",
+  "DOCUMENTO": "44311396X",
+  "DORSAL": 8,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "jose",
+  "APELLIDOS": "rossi",
+  "DOCUMENTO": 253207760,
+  "DORSAL": 9,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Gabriel",
+  "APELLIDOS": "Quenneville",
+  "DOCUMENTO": "P340580NW",
+  "DORSAL": 10,
+  "TALLA DE CAMISETA": "Masculino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Isaac",
+  "APELLIDOS": "Suarez Peña",
+  "DOCUMENTO": "54087778N",
+  "DORSAL": 11,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "LUIS M.",
+  "APELLIDOS": "RAMIREZ RAMOS",
+  "DOCUMENTO": "45280760Q",
+  "DORSAL": 12,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Ataulfo",
+  "APELLIDOS": "Alvar Iglesias",
+  "DOCUMENTO": "43751755M",
+  "DORSAL": 13,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "MIGUEL ANGEL",
+  "APELLIDOS": "VILLANUEVA QUINTERO",
+  "DOCUMENTO": "43272761D",
+  "DORSAL": 14,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Samuel",
+  "APELLIDOS": "Moreno Granado",
+  "DOCUMENTO": "45778764r",
+  "DORSAL": 15,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Sarah",
+  "APELLIDOS": "Lascala",
+  "DOCUMENTO": "CA75078QK",
+  "DORSAL": 16,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Paolo",
+  "APELLIDOS": "Morosini",
+  "DOCUMENTO": "YB7307002",
+  "DORSAL": 17,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Nadia",
+  "APELLIDOS": "Cusini",
+  "DOCUMENTO": "YC8308545",
+  "DORSAL": 18,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Nicolás",
+  "APELLIDOS": "Leiva Godoy",
+  "DOCUMENTO": "16819059X",
+  "DORSAL": 19,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "M. Montse",
+  "APELLIDOS": "ramirez gomez",
+  "DOCUMENTO": "44316318x",
+  "DORSAL": 20,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Arantzazu",
+  "APELLIDOS": "Perdomo García",
+  "DOCUMENTO": "43292092C",
+  "DORSAL": 21,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Aldo",
+  "APELLIDOS": "Suarez Soto",
+  "DOCUMENTO": "42210533J",
+  "DORSAL": 22,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Juan Carlos",
+  "APELLIDOS": "Santana Betancor",
+  "DOCUMENTO": "45756489J",
+  "DORSAL": 23,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Africa",
+  "APELLIDOS": "Bergillos Diéguez",
+  "DOCUMENTO": "25718091C",
+  "DORSAL": 24,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "laura",
+  "APELLIDOS": "socas hernandez",
+  "DOCUMENTO": "44732868f",
+  "DORSAL": 25,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Inés",
+  "APELLIDOS": "Sevilla Rodriguez",
+  "DOCUMENTO": "44308549S",
+  "DORSAL": 26,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "David",
+  "APELLIDOS": "González perdomo",
+  "DOCUMENTO": "54081567B",
+  "DORSAL": 27,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "SERGIO",
+  "APELLIDOS": "CURBELO GUERRA",
+  "DOCUMENTO": "78550128e",
+  "DORSAL": 28,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Eri Dario",
+  "APELLIDOS": "Delgado Aguilar",
+  "DOCUMENTO": "Z0706828C",
+  "DORSAL": 29,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Jose",
+  "APELLIDOS": "Carrillo Leon",
+  "DOCUMENTO": "44719501A",
+  "DORSAL": 30,
+  "TALLA DE CAMISETA": "Masculino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Ayose",
+  "APELLIDOS": "Santana García",
+  "DOCUMENTO": "54079227v",
+  "DORSAL": 31,
+  "TALLA DE CAMISETA": "Masculino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "David",
+  "APELLIDOS": "González Pérez",
+  "DOCUMENTO": "43798253C",
+  "DORSAL": 32,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "CRISTO",
+  "APELLIDOS": "FERNANDEZ PEÑA",
+  "DOCUMENTO": "44312791W",
+  "DORSAL": 33,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Edgar Miguel",
+  "APELLIDOS": "González Quintana",
+  "DOCUMENTO": "49510683D",
+  "DORSAL": 34,
+  "TALLA DE CAMISETA": "Femenino XXL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "UGO",
+  "APELLIDOS": "FABBRI",
+  "DOCUMENTO": "X3841036J",
+  "DORSAL": 35,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Alexis",
+  "APELLIDOS": "Garcia",
+  "DOCUMENTO": "Y9829007V",
+  "DORSAL": 36,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Noemi",
+  "APELLIDOS": "Moreno Chávez",
+  "DOCUMENTO": "54051252x",
+  "DORSAL": 37,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Pedro",
+  "APELLIDOS": "Hornillo Barbero",
+  "DOCUMENTO": "48960923H",
+  "DORSAL": 38,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Alejandro",
+  "APELLIDOS": "García Torres",
+  "DOCUMENTO": "78625944f",
+  "DORSAL": 39,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Fabián",
+  "APELLIDOS": "Bethencourt Pérez",
+  "DOCUMENTO": "78614908b",
+  "DORSAL": 41,
+  "TALLA DE CAMISETA": "Masculino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "FRANCISCO JAVIER",
+  "APELLIDOS": "MARTÍN PÉREZ",
+  "DOCUMENTO": "78521710D",
+  "DORSAL": 42,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "María del Rosario",
+  "APELLIDOS": "Martín Monagas",
+  "DOCUMENTO": "42915403w",
+  "DORSAL": 43,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "CRISTINA",
+  "APELLIDOS": "DEL PAZO FRANCO",
+  "DOCUMENTO": "44300628Y",
+  "DORSAL": 45,
+  "TALLA DE CAMISETA": "Femenino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "David",
+  "APELLIDOS": "González Quirós",
+  "DOCUMENTO": "50110514T",
+  "DORSAL": 46,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Melchor",
+  "APELLIDOS": "Hernández García",
+  "DOCUMENTO": "43372496Q",
+  "DORSAL": 47,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Sergio",
+  "APELLIDOS": "curbelo guerra",
+  "DOCUMENTO": "78550128e",
+  "DORSAL": 48,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Alejandra pilar",
+  "APELLIDOS": "Rodríguez hernandez",
+  "DOCUMENTO": "78557834t",
+  "DORSAL": 49,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "MANUEL ÁNGEL",
+  "APELLIDOS": "GONZÁLEZ TOLEDO",
+  "DOCUMENTO": "42178321R",
+  "DORSAL": 50,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Judit",
+  "APELLIDOS": "Lopez Leon",
+  "DOCUMENTO": "42418319V",
+  "DORSAL": 51,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Aythami",
+  "APELLIDOS": "Santana Peña",
+  "DOCUMENTO": "54088365R",
+  "DORSAL": 52,
+  "TALLA DE CAMISETA": "Masculino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Alberto",
+  "APELLIDOS": "Rodríguez Rodríguez",
+  "DOCUMENTO": "78512661E",
+  "DORSAL": 53,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Elena",
+  "APELLIDOS": "Quintanilla Ayllón",
+  "DOCUMENTO": "43654859P",
+  "DORSAL": 55,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Álvaro A.",
+  "APELLIDOS": "Rojas García",
+  "DOCUMENTO": "42938310r",
+  "DORSAL": 56,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Gustavo",
+  "APELLIDOS": "Gustavo Garcia",
+  "DOCUMENTO": "42184267j",
+  "DORSAL": 57,
+  "TALLA DE CAMISETA": "Femenino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Agustín",
+  "APELLIDOS": "Núñez Pérez",
+  "DOCUMENTO": "53114070D",
+  "DORSAL": 58,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Fatima Encarnacion",
+  "APELLIDOS": "Ramírez Arraiz",
+  "DOCUMENTO": "42795390A",
+  "DORSAL": 60,
+  "TALLA DE CAMISETA": "Femenino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Nataliia",
+  "APELLIDOS": "Filatova",
+  "DOCUMENTO": "FG370428",
+  "DORSAL": 61,
+  "TALLA DE CAMISETA": "Femenino XL",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint Solo"
+ },
+ {
+  "NOMBRE": "Alberto",
+  "APELLIDOS": "Cantera González",
+  "DOCUMENTO": "54079296V",
+  "DORSAL": 81,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "2PaletosSinPalas"
+ },
+ {
+  "NOMBRE": "Marco Antonio",
+  "APELLIDOS": "López Mentado",
+  "DOCUMENTO": "45780951A",
+  "DORSAL": 82,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Masculino",
+  "NOMBRE DEL EQUIPO": "2PaletosSinPalas"
+ },
+ {
+  "NOMBRE": "Richard",
+  "APELLIDOS": "Leary",
+  "DOCUMENTO": 129479378,
+  "DORSAL": 83,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "CelticTri"
+ },
+ {
+  "NOMBRE": "Jayne",
+  "APELLIDOS": "Leary",
+  "DOCUMENTO": 557940004,
+  "DORSAL": 84,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "CelticTri"
+ },
+ {
+  "NOMBRE": "Lucia",
+  "APELLIDOS": "Espacio Girón",
+  "DOCUMENTO": "08884807E",
+  "DORSAL": 85,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "CorrequevieneelTiburon"
+ },
+ {
+  "NOMBRE": "David",
+  "APELLIDOS": "Reyes Sarmiento",
+  "DOCUMENTO": "44715271M",
+  "DORSAL": 87,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "CorrequevieneelTiburon"
+ },
+ {
+  "NOMBRE": "ISRAEL",
+  "APELLIDOS": "GARCIA MEDINA",
+  "DOCUMENTO": "44710345R",
+  "DORSAL": 88,
+  "TALLA DE CAMISETA": "Masculino M",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "IS2"
+ },
+ {
+  "NOMBRE": "ISABEL",
+  "APELLIDOS": "VALIDO CARRÑO",
+  "DOCUMENTO": "44702332S",
+  "DORSAL": 89,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "IS2"
+ },
+ {
+  "NOMBRE": "María del Rosario",
+  "APELLIDOS": "Martín Monagas",
+  "DOCUMENTO": "42915403w",
+  "DORSAL": 90,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "NAYA"
+ },
+ {
+  "NOMBRE": "Juan",
+  "APELLIDOS": "Caballero Ramos",
+  "DOCUMENTO": "43754806c",
+  "DORSAL": 91,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "NAYA"
+ },
+ {
+  "NOMBRE": "Elena",
+  "APELLIDOS": "Hidalgo martin",
+  "DOCUMENTO": "11839550R",
+  "DORSAL": 92,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "SuperNenas"
+ },
+ {
+  "NOMBRE": "almudena",
+  "APELLIDOS": "Pomar sarasa",
+  "DOCUMENTO": "31736935V",
+  "DORSAL": 94,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Femenino",
+  "NOMBRE DEL EQUIPO": "SuperNenas"
+ },
+ {
+  "NOMBRE": "María Tatiana",
+  "APELLIDOS": "Mujica González",
+  "DOCUMENTO": "44738260V",
+  "DORSAL": 95,
+  "TALLA DE CAMISETA": "Femenino S",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "SwimAndTrainMaspalomas"
+ },
+ {
+  "NOMBRE": "Carlos Jesús",
+  "APELLIDOS": "Suárez Guillén",
+  "DOCUMENTO": "42227000N",
+  "DORSAL": 96,
+  "TALLA DE CAMISETA": "Masculino L",
+  "COLOR DEL GORRO": "Rojo",
+  "TARIFA": "Sprint\/Team",
+  "CATEGORIA": "Mixto",
+  "NOMBRE DEL EQUIPO": "SwimAndTrainMaspalomas"
+ },
+ {
+  "NOMBRE": "Elena",
+  "APELLIDOS": "González Belón",
+  "DOCUMENTO": "49859332R",
+  "DORSAL": 801,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Neizan Jose",
+  "APELLIDOS": "Paredes Roberts",
+  "DOCUMENTO": "48243962J",
+  "DORSAL": 802,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Elena",
+  "APELLIDOS": "Liñán del Rosario",
+  "DOCUMENTO": "48241720W",
+  "DORSAL": 803,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Sofía",
+  "APELLIDOS": "Ramirez Sarmiento",
+  "DOCUMENTO": "79217504F",
+  "DORSAL": 804,
+  "TALLA DE CAMISETA": "Talla 10",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Adriana",
+  "APELLIDOS": "Calvo Rodríguez",
+  "DOCUMENTO": "54386108D",
+  "DORSAL": 805,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Iria",
+  "APELLIDOS": "Hernandez García",
+  "DOCUMENTO": "49861372V",
+  "DORSAL": 806,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Alba",
+  "APELLIDOS": "Gomez Hernandez",
+  "DOCUMENTO": "41612256N",
+  "DORSAL": 807,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "James",
+  "APELLIDOS": "McCarthy Wendelin",
+  "DOCUMENTO": "54584557Z",
+  "DORSAL": 808,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Tobias",
+  "APELLIDOS": "Kuttenkeuler",
+  "DOCUMENTO": "Y5086131V",
+  "DORSAL": 809,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "César",
+  "APELLIDOS": "Domínguez del Rosario",
+  "DOCUMENTO": "54584178A",
+  "DORSAL": 810,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Daniela",
+  "APELLIDOS": "Cándano Falcón",
+  "DOCUMENTO": "54585882M",
+  "DORSAL": 811,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Inés",
+  "APELLIDOS": "Sanchez Rodríguez",
+  "DOCUMENTO": "49796205D",
+  "DORSAL": 812,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Zoe",
+  "APELLIDOS": "phillips",
+  "DOCUMENTO": "Y4139370M",
+  "DORSAL": 813,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Ana",
+  "APELLIDOS": "Mosquera Winter",
+  "DOCUMENTO": "49981734C",
+  "DORSAL": 814,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Lucas",
+  "APELLIDOS": "Zamorano Sánchez",
+  "DOCUMENTO": "44108462M",
+  "DORSAL": 815,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Lucia",
+  "APELLIDOS": "Paredes Roberts",
+  "DOCUMENTO": "48243963Z",
+  "DORSAL": 816,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "SIDNEY",
+  "APELLIDOS": "LOPEZ  STAROVA",
+  "DOCUMENTO": "49983536M",
+  "DORSAL": 817,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Matthieu",
+  "APELLIDOS": "Taillandier García",
+  "DOCUMENTO": "48241860G",
+  "DORSAL": 818,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "INÉS",
+  "APELLIDOS": "MORÓN BETANCOR",
+  "DOCUMENTO": "54826619R",
+  "DORSAL": 819,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Teo",
+  "APELLIDOS": "Lorenzo Morales",
+  "DOCUMENTO": "44707625H",
+  "DORSAL": 820,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Marta",
+  "APELLIDOS": "Morón Santana",
+  "DOCUMENTO": "54824964W",
+  "DORSAL": 821,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Álvaro",
+  "APELLIDOS": "Domínguez del Rosario",
+  "DOCUMENTO": "54584179G",
+  "DORSAL": 822,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Alia",
+  "APELLIDOS": "Ojeda Khoury",
+  "DOCUMENTO": "54583433V",
+  "DORSAL": 823,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Paula",
+  "APELLIDOS": "Aleman Millan",
+  "DOCUMENTO": "16815832A",
+  "DORSAL": 824,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "MARYO",
+  "APELLIDOS": "Santana Santana",
+  "DOCUMENTO": "49860756E",
+  "DORSAL": 825,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Óscar",
+  "APELLIDOS": "Serrano Alemán",
+  "DOCUMENTO": "54823233L",
+  "DORSAL": 826,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Daniela del Carmen",
+  "APELLIDOS": "Casanova lorenzo",
+  "DOCUMENTO": "49979730V",
+  "DORSAL": 827,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Aday",
+  "APELLIDOS": "Rodríguez Mendoza",
+  "DOCUMENTO": "16821992E",
+  "DORSAL": 828,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Elena",
+  "APELLIDOS": "Ramírez Rocha",
+  "DOCUMENTO": "54540449C",
+  "DORSAL": 829,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Nicolás",
+  "APELLIDOS": "Serrano Alemán",
+  "DOCUMENTO": "54823234C",
+  "DORSAL": 830,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Albert Arben",
+  "APELLIDOS": "Lelaj",
+  "DOCUMENTO": "Y8253683D",
+  "DORSAL": 831,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Julia",
+  "APELLIDOS": "Carballo López",
+  "DOCUMENTO": "49862578G",
+  "DORSAL": 832,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Leticia",
+  "APELLIDOS": "Carballo López",
+  "DOCUMENTO": "72221760N",
+  "DORSAL": 833,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Nicolás",
+  "APELLIDOS": "Leiva Cuyás",
+  "DOCUMENTO": "54821063B",
+  "DORSAL": 834,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Chloe",
+  "APELLIDOS": "McCarthy Wendelin",
+  "DOCUMENTO": "49861607E",
+  "DORSAL": 835,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Valentina",
+  "APELLIDOS": "Medina Milán",
+  "DOCUMENTO": "54389663E",
+  "DORSAL": 836,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Diego",
+  "APELLIDOS": "García García",
+  "DOCUMENTO": "16814758X",
+  "DORSAL": 837,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Carla",
+  "APELLIDOS": "Jiménez Artiles",
+  "DOCUMENTO": "54388896Z",
+  "DORSAL": 838,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Juan David",
+  "APELLIDOS": "Hernández Tite",
+  "DOCUMENTO": "54586483P",
+  "DORSAL": 839,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "GONZALO",
+  "APELLIDOS": "VIERA MARRERO",
+  "DOCUMENTO": "49796473R",
+  "DORSAL": 840,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "ANTONIO",
+  "APELLIDOS": "FLOREZ CARDESIN",
+  "DOCUMENTO": "49694571N",
+  "DORSAL": 841,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 10+13 años"
+ },
+ {
+  "NOMBRE": "Theodor",
+  "APELLIDOS": "Kuttenkeuler",
+  "DOCUMENTO": "Y2949165G",
+  "DORSAL": 901,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Samuel",
+  "APELLIDOS": "Rincón Martinez",
+  "DOCUMENTO": "45178471P",
+  "DORSAL": 902,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "DEREK",
+  "APELLIDOS": "SUAREZ RUIZ",
+  "DOCUMENTO": "54586576d",
+  "DORSAL": 903,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Andria",
+  "APELLIDOS": "Poladashvili",
+  "DOCUMENTO": "Z1648633k",
+  "DORSAL": 904,
+  "TALLA DE CAMISETA": "Talla 10",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "AINHOA",
+  "APELLIDOS": "DOMINGUEZ FERNANDEZ",
+  "DOCUMENTO": "54270513N",
+  "DORSAL": 905,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Davyd",
+  "APELLIDOS": "Ivanov",
+  "DOCUMENTO": "Z0079302A",
+  "DORSAL": 906,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Claudia",
+  "APELLIDOS": "Ramírez Rodríguez",
+  "DOCUMENTO": "79204965A",
+  "DORSAL": 907,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Jenny",
+  "APELLIDOS": "Castillo Quintero",
+  "DOCUMENTO": "Y2861001E",
+  "DORSAL": 908,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Jose Antonio",
+  "APELLIDOS": "Herrera Sánchez",
+  "DOCUMENTO": "Y2426739T",
+  "DORSAL": 909,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Santi",
+  "APELLIDOS": "Benítez Domínguez",
+  "DOCUMENTO": "45395268F",
+  "DORSAL": 910,
+  "TALLA DE CAMISETA": "Talla 14",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Ruben",
+  "APELLIDOS": "Cabrera Trujillo",
+  "DOCUMENTO": "54171642H",
+  "DORSAL": 911,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Erik",
+  "APELLIDOS": "Hernández Santana",
+  "DOCUMENTO": "49499388F",
+  "DORSAL": 912,
+  "TALLA DE CAMISETA": "Talla 12",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "HIMAR",
+  "APELLIDOS": "GIL RODRÍGUEZ",
+  "DOCUMENTO": "49981032P",
+  "DORSAL": 913,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Héctor",
+  "APELLIDOS": "Gallego Domínguez",
+  "DOCUMENTO": "58446114D",
+  "DORSAL": 914,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Irene",
+  "APELLIDOS": "Roca gallego",
+  "DOCUMENTO": "42276618L",
+  "DORSAL": 915,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Inés",
+  "APELLIDOS": "Mosquera Winter",
+  "DOCUMENTO": "49497173T",
+  "DORSAL": 916,
+  "TALLA DE CAMISETA": "Talla XS",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Sofía",
+  "APELLIDOS": "Macho Reina",
+  "DOCUMENTO": "49691418X",
+  "DORSAL": 917,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Ángel",
+  "APELLIDOS": "Santana Guaña",
+  "DOCUMENTO": "49407723c",
+  "DORSAL": 918,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ },
+ {
+  "NOMBRE": "Jorgr Lorenzo",
+  "APELLIDOS": "González Rodríguez",
+  "DOCUMENTO": "49796230B",
+  "DORSAL": 919,
+  "TALLA DE CAMISETA": "Talla S",
+  "COLOR DEL GORRO": "Naranja",
+  "TARIFA": "Niños 14+17 años"
+ }
+
+
+  ];
+
+  // Normaliza el texto para la búsqueda
+  function normalizarTexto(texto) {
+    return (texto || "")
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  }
+
+  // Mostrar lista de resultados
+  function mostrarResultados(resultados) {
+    let lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    if (resultados.length === 0) {
+      lista.innerHTML = "<div>No se encontraron resultados</div>";
+      return;
+    }
+
+    resultados.forEach(item => {
+      let div = document.createElement("div");
+      div.textContent = `${item.DORSAL || ""} - ${item.NOMBRE || ""} ${item.APELLIDOS || ""}`;
+      div.onclick = function () {
+        mostrarDetalle(item);
+      };
+      lista.appendChild(div);
+    });
+  }
+
+  // Mostrar detalle completo
+  function mostrarDetalle(item) {
+    let resultado = document.getElementById("resultado");
+
+    let filas = `
+      <tr><th>Dorsal</th><td data-label="Dorsal">${item.DORSAL || ""}</td></tr>
+      <tr><th>Nombre</th><td data-label="Nombre">${item.NOMBRE || ""}</td></tr>
+      <tr><th>Apellidos</th><td data-label="Apellidos">${item.APELLIDOS || ""}</td></tr>
+      <tr><th>Documento</th><td data-label="Documento">${item.DOCUMENTO || ""}</td></tr>
+      <tr><th>Tarifa</th><td data-label="Tarifa">${item.TARIFA || ""}</td></tr>
+      <tr><th>Talla de camiseta</th><td data-label="Talla de camiseta">${item["TALLA DE CAMISETA"] || ""}</td></tr>
+      <tr><th>Color del gorro</th><td data-label="Color del gorro">${item["COLOR DEL GORRO"] || ""}</td></tr>
+    `;
+
+    // Solo añadir "Categoria" si tiene valor
+    if (item["CATEGORIA"] && item["CATEGORIA"].trim() !== "") {
+      filas += `<tr><th>Categoria</th><td data-label="Categoria">${item["CATEGORIA"]}</td></tr>`;
+    }
+
+    // Solo añadir "Nombre del equipo" si tiene valor
+    if (item["NOMBRE DEL EQUIPO"] && item["NOMBRE DEL EQUIPO"].trim() !== "") {
+      filas += `<tr><th>Nombre del equipo</th><td data-label="NOMBRE DEL EQUIPO">${item["NOMBRE DEL EQUIPO"]}</td></tr>`;
+    }
+
+    resultado.innerHTML = `<table>${filas}</table>`;
+
+    // Limpiar la lista cuando se selecciona un participante
+    document.getElementById("lista").innerHTML = "";
+  }
+
+  // Buscar al escribir
+  document.getElementById("busqueda").addEventListener("input", function () {
+    let consulta = normalizarTexto(this.value);
+    let palabras = consulta.split(/\s+/).filter(Boolean);
+
+    let resultados = datos.filter(item => {
+      let nombreCompleto = normalizarTexto((item.NOMBRE || "") + " " + (item.APELLIDOS || ""));
+      return palabras.every(p => nombreCompleto.includes(p));
+    });
+
+    mostrarResultados(resultados);
+  });
+
+  // Botón limpiar
+  document.getElementById("limpiarBtn").addEventListener("click", function () {
+    document.getElementById("busqueda").value = "";
+    document.getElementById("lista").innerHTML = "";
+    document.getElementById("resultado").innerHTML = "";
+  });
+</script>
+
+</body>
+
+</html>
