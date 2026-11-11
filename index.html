@@ -1472,7 +1472,7 @@
 
     resultados.forEach(item => {
       let div = document.createElement("div");
-      div.textContent = `${item.DORSAL || ""} - ${item.NOMBRE || ""} ${item.APELLIDOS || ""}`;
+      div.textContent = `${item.NOMBRE || ""} ${item.APELLIDOS || ""}`;
       div.onclick = function () {
         mostrarDetalle(item);
       };
